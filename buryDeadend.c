@@ -40,7 +40,7 @@ int readBattlefield(int battlefield[WORLD_SIZE][WORLD_SIZE], char *filename){
 
   fp = fopen(filename, "r");
   if(fp == NULL){
-    return(1)
+    return(1);
   }else{
     for(i=0; i<WORLD_SIZE; i++){
       for(j=0; j<WORLD_SIZE; j++){
@@ -55,10 +55,10 @@ int readBattlefield(int battlefield[WORLD_SIZE][WORLD_SIZE], char *filename){
 }
 
 int printWorld(int battlefield[WORLD_SIZE][WORLD_SIZE], int message){
-  if(message == ORIGINAL)}
+  if(message == ORIGINAL){
     printf("Original Map\n");
   }else if(message == BRUIED){
-    printf("Dead ends buried\n")
+    printf("Dead ends buried\n");
   }
 
   int i, j;
@@ -79,7 +79,7 @@ int printWorld(int battlefield[WORLD_SIZE][WORLD_SIZE], int message){
           break;
         default:
           fprintf(stderr, "%d\n", battlefield[i][j]);
-          printff(stderr, "Ececution Error! \n");
+          fprintf(stderr, "Ececution Error! \n");
           return(1);
           break;
       }
@@ -94,8 +94,8 @@ int main(int argc, char *argv[]){
   int battlefield[WORLD_SIZE][WORLD_SIZE];
   char filename[256];
   strcpy(filename, "battlefield.dat");
-  if(argc == 1){
-    strncpy(filename, argv[1], 256)
+  if(argc == 2){
+    strncpy(filename, argv[1], 256);
   }
 
   if(readBattlefield(battlefield, filename) == 1){
@@ -104,6 +104,6 @@ int main(int argc, char *argv[]){
   }
 
   printWorld(battlefield, ORIGINAL);
-  
+
   return(0);
 }
