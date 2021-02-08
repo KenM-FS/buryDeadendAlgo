@@ -21,6 +21,10 @@
 #ifndef FREE
 #define FREE 0
 #endif
+/* 格子世界の外 */
+#ifndef OUTSIDE
+#define OUTSIDE -10
+#endif
 
 /* オリジナルのマップ */
 #ifndef ORIGINAL
@@ -33,12 +37,51 @@
 
 /*======ここから本題============================================================*/
 /*
- * 参照したい配列の添字が有効か判断する
+ * 参照したい配列の添字が有効ならその添字を、無効なら最後の添字を返す
  */
-// int index(int i, int j){
-//   if(i<0 || i>WORLD_SIZE || j<0 || j>WORLD_SIZE) return WORLD_SIZE*WORLD_SIZE;
-//   return WORLD_SIZE*i + j;
-// }
+int get_index(int i, int j){
+  if(i<0 || i>WORLD_SIZE || j<0 || j>WORLD_SIZE) return WORLD_SIZE*WORLD_SIZE;
+  return WORLD_SIZE*i + j;
+}
+
+/*
+ * そのグリッドを埋めるか判断する
+ */
+int fillGrid(int *grid, int i, int j){
+  if(*(grid+get_index(i,j)) != 0) return 1;
+  // パターン分けによってグリッドを埋めるか決定する
+  int p1=0, p2=0, p3=0, p4=0, total=0;
+  if(*(grid + get_index(i-1,j)) == -1){p1++; p2++; total++;}
+  if(*(grid + get_index(i,j+1)) == -1){p1++; p4++; total++;}
+  if(*(grid + get_index(i,j-1)) == -1){p2++; p3++; total++;}
+  if(*(grid + get_index(i+1,j)) == -1){p3++; p4++; total++;}
+  if((total >= 3) ||
+     (p1==2 && *(grid+get_index(i+1,j-1)) != -1) ||
+     (p2==2 && *(grid+get_index(i+1,j+1)) != -1) ||
+     (p3==2 && *(grid+get_index(i-1,j+1)) != -1) ||
+     (p4==2 && *(grid+get_index(i-1,j-1)) != -1)){
+       *(grid+get_index(i,j)) = -1;
+       // そのグリッドが変化下なら、再帰的に周りのグリッドも埋めるか判断する
+       fillGrid(grid, i+1, j);
+       fillGrid(grid, i-1, j);
+       fillGrid(grid, i, j+1);
+       fillGrid(grid, i, j-1);
+      return 0;
+  }
+  return 1;
+}
+
+/*
+ * すべてのグリッドに fillGrid を適用させる
+ */
+int buryDeadend(int *battlefield){
+  int i, j;
+  for(i=0; i<WORLD_SIZE; i++){
+    for(j=0; j<WORLD_SIZE; j++){
+      fillGrid(battlefield, i, j);
+    }
+  }
+}
 
 /*======ここから本題とは関係ない部分===============================================*/
 /* 
@@ -63,6 +106,7 @@ int readBattlefield(int battlefield[WORLD_SIZE][WORLD_SIZE], char *filename){
     return(0);
   }
 }
+
 /*
  * 格子世界を出力する関数
  */
@@ -102,6 +146,20 @@ int printWorld(int *battlefield, int message){
   return(0);
 }
 
+/*
+ * 格子世界をコピーする
+ */
+int copyWorld(int *battlefield, int *buriedWorld){
+  int i, j;
+  for(i=0; i<WORLD_SIZE; i++){
+    for(j=0; j<WORLD_SIZE; j++){
+      *(buriedWorld+WORLD_SIZE*i+j) = *(battlefield+WORLD_SIZE*i+j);
+    }
+  }
+  *(buriedWorld+WORLD_SIZE*WORLD_SIZE+1) = OUTSIDE;
+  return 0;
+}
+
 int main(int argc, char *argv[]){
   // コマンドライン引数で読み込むファイルを変更できるように
   int battlefield[WORLD_SIZE][WORLD_SIZE];
@@ -119,6 +177,17 @@ int main(int argc, char *argv[]){
 
   // 初期状態の格子世界を出力
   printWorld((int *)battlefield, ORIGINAL);
+
+  // 変換した格子世界を格納する配列
+  // 本来の配列より1大きいのが重要
+  int buriedWorld[WORLD_SIZE*WORLD_SIZE+1];
+  // 上の配列に格子世界をコピーする
+  copyWorld((int *)battlefield, buriedWorld);
+
+  buryDeadend(buriedWorld);
+
+  // 最終的な出力
+  printWorld(buriedWorld, BRUIED);
 
   return(0);
 }
