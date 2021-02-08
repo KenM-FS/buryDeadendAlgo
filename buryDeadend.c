@@ -35,10 +35,10 @@
 /*
  * 参照したい配列の添字が有効か判断する
  */
-int index(int i, int j){
-  if(i<0 || i>WORLD_SIZE || j<0 || j>WORLD_SIZE) return WORLD_SIZE*WORLD_SIZE;
-  return WORLD_SIZE*i + j;
-}
+// int index(int i, int j){
+//   if(i<0 || i>WORLD_SIZE || j<0 || j>WORLD_SIZE) return WORLD_SIZE*WORLD_SIZE;
+//   return WORLD_SIZE*i + j;
+// }
 
 /*======ここから本題とは関係ない部分===============================================*/
 /* 
@@ -66,7 +66,7 @@ int readBattlefield(int battlefield[WORLD_SIZE][WORLD_SIZE], char *filename){
 /*
  * 格子世界を出力する関数
  */
-int printWorld(int battlefield[WORLD_SIZE][WORLD_SIZE], int message){
+int printWorld(int *battlefield, int message){
   if(message == ORIGINAL){
     printf("Original Map\n");
   }else if(message == BRUIED){
@@ -76,7 +76,7 @@ int printWorld(int battlefield[WORLD_SIZE][WORLD_SIZE], int message){
   int i, j;
   for(i=0; i<WORLD_SIZE; i++){
     for(j=0; j<WORLD_SIZE; j++){
-      switch(battlefield[i][j]){
+      switch(*(battlefield+WORLD_SIZE*i+j)){
         case FREE:
           printf(".");
           break;
@@ -90,7 +90,7 @@ int printWorld(int battlefield[WORLD_SIZE][WORLD_SIZE], int message){
           printf("*");
           break;
         default:
-          fprintf(stderr, "%d\n", battlefield[i][j]);
+          fprintf(stderr, "%d\n", *(battlefield+WORLD_SIZE*i+j));
           fprintf(stderr, "Ececution Error! \n");
           return(1);
           break;
@@ -118,7 +118,7 @@ int main(int argc, char *argv[]){
   }
 
   // 初期状態の格子世界を出力
-  printWorld(battlefield, ORIGINAL);
+  printWorld((int *)battlefield, ORIGINAL);
 
   return(0);
 }
