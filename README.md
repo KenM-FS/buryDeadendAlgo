@@ -1,4 +1,6 @@
 # buryDeadendAlgo
+This algorithm buries dead ends in lattice world
+
 格子世界において袋小路を埋めるアルゴリズム
 
 ## 背景
